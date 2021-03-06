@@ -25,15 +25,18 @@ provider:
         - 's3:ListBucket'
         - 's3:GetBucket'
         - 's3:GetBucketLocation'
+        - 'dynamodb:Query'
       Resource: 
         - 'arn:aws:s3:::s3-bucket-cs493'
         - 'arn:aws:s3:::s3-bucket-cs493/*'
-
+        - 'arn:aws:dynamodb:us-west-2:621940852840:table/music'
+        
 functions:
   app:
-    handler: wsgi.handler
+    handler: wsgi_handler.handler
     events:
       - http: 
           path: /
           method: get
           cors: true
+      - http: "ANY {proxy+}"

@@ -140,11 +140,13 @@
                     "s3:*",
                     "s3:ListBucket",
                     "s3:GetBucket",
-                    "s3:GetBucketLocation"
+                    "s3:GetBucketLocation",
+                    "dynamodb:Query"
                   ],
                   "Resource": [
                     "arn:aws:s3:::s3-bucket-cs493",
-                    "arn:aws:s3:::s3-bucket-cs493/*"
+                    "arn:aws:s3:::s3-bucket-cs493/*",
+                    "arn:aws:dynamodb:us-west-2:621940852840:table/music"
                   ]
                 }
               ]
@@ -174,7 +176,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask/dev/1614323277227-2021-02-26T07:07:57.227Z/serverless-flask.zip"
+          "S3Key": "serverless/serverless-flask/dev/1614997049260-2021-03-06T02:17:29.260Z/serverless-flask.zip"
         },
         "Handler": "wsgi_handler.handler",
         "Runtime": "python3.6",
@@ -192,14 +194,14 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersionigOkH3UPaCud9aBsVM1lw3ExYeeHiPMPUXcjuYBfk": {
+    "AppLambdaVersionqdDraeVttMS0hglQPkhXXtxGWIOYKVUM4zTXEWj8epw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "+x8du8XycD3yQOr0qnZhbVjmXYFVgong42ZGHjfOOCI="
+        "CodeSha256": "iu+ppsmX/9Eeef/jJigID1AHQk9mZuSAgX2bryPcCsw="
       }
     },
     "ApiGatewayRestApi": {
@@ -212,6 +214,21 @@
           ]
         },
         "Policy": ""
+      }
+    },
+    "ApiGatewayResourceProxyVar": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
       }
     },
     "ApiGatewayMethodOptions": {
@@ -308,7 +325,50 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1614323255205": {
+    "ApiGatewayMethodProxyVarAny": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "ANY",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceProxyVar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1614997032242": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -318,7 +378,8 @@
       },
       "DependsOn": [
         "ApiGatewayMethodOptions",
-        "ApiGatewayMethodGet"
+        "ApiGatewayMethodGet",
+        "ApiGatewayMethodProxyVarAny"
       ]
     },
     "AppLambdaPermissionApiGateway": {
@@ -368,7 +429,7 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionigOkH3UPaCud9aBsVM1lw3ExYeeHiPMPUXcjuYBfk"
+        "Ref": "AppLambdaVersionqdDraeVttMS0hglQPkhXXtxGWIOYKVUM4zTXEWj8epw"
       }
     },
     "ServiceEndpoint": {
