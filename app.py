@@ -1,14 +1,13 @@
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from botocore.client import Config
-import boto3, json
-import datetime
+import boto3, json, datetime
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
+cross_origin(support_credentials=True)
 @app.route("/")
-@cross_origin(support_credentials=True)
 def hello():
 	s3 = boto3.resource(
 		's3',
@@ -31,7 +30,7 @@ def hello():
 		"headers": {
 			"Access-Control-Allow-Headers": "Content-Type",
 			"Access-Control-Allow-Origin": "*",
-			"Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+			"Access-Control-Allow-Methods": "OPTIONS,DELETE,PATCH,PUT,POST,GET",
 		},
 		"body": songs,
 	}
@@ -129,7 +128,15 @@ def get_song():
 	)
 
 	return url
-	
+
+cross_origin(support_credentials=True)
+@app.route("/play", methods=['POST'])
+def play_song():
+	client = boto3.client('sqs', region_name="us-east-1")
+	response = client.send_message(
+		QueueUrl="https://sqs.us-east-1.amazonaws.com/621940852840/pubsubqueue",
+		MessageBody=json.dumps(request.json)
+	)
 
 
 

@@ -77,6 +77,18 @@
         "LogGroupName": "/aws/lambda/serverless-flask-dev-app"
       }
     },
+    "PubsubLambdaLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/serverless-flask-dev-pubsubLambda"
+      }
+    },
+    "AuthLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/serverless-flask-dev-auth"
+      }
+    },
     "IamRoleLambdaExecution": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -141,12 +153,25 @@
                     "s3:ListBucket",
                     "s3:GetBucket",
                     "s3:GetBucketLocation",
-                    "dynamodb:Query"
+                    "dynamodb:Query",
+                    "SQS:*"
                   ],
                   "Resource": [
                     "arn:aws:s3:::s3-bucket-cs493",
                     "arn:aws:s3:::s3-bucket-cs493/*",
-                    "arn:aws:dynamodb:us-west-2:621940852840:table/music"
+                    "arn:aws:dynamodb:us-west-2:621940852840:table/music",
+                    "arn:aws:sqs:us-east-1:621940852840:pubsubqueue"
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:GetQueueAttributes"
+                  ],
+                  "Resource": [
+                    "arn:aws:sqs:us-east-1:621940852840:pubsubqueue"
                   ]
                 }
               ]
@@ -176,7 +201,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask/dev/1614997049260-2021-03-06T02:17:29.260Z/serverless-flask.zip"
+          "S3Key": "serverless/serverless-flask/dev/1616099708354-2021-03-18T20:35:08.354Z/serverless-flask.zip"
         },
         "Handler": "wsgi_handler.handler",
         "Runtime": "python3.6",
@@ -194,14 +219,84 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersionqdDraeVttMS0hglQPkhXXtxGWIOYKVUM4zTXEWj8epw": {
+    "PubsubLambdaLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/serverless-flask/dev/1616099708354-2021-03-18T20:35:08.354Z/serverless-flask.zip"
+        },
+        "Handler": "handler.pubsubLambda",
+        "Runtime": "python3.6",
+        "FunctionName": "serverless-flask-dev-pubsubLambda",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "PubsubLambdaLogGroup"
+      ]
+    },
+    "AuthLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/serverless-flask/dev/1616099708354-2021-03-18T20:35:08.354Z/serverless-flask.zip"
+        },
+        "Handler": "auth.handler",
+        "Runtime": "python3.6",
+        "FunctionName": "serverless-flask-dev-auth",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "AuthLogGroup"
+      ]
+    },
+    "AppLambdaVersionuxQmOGokbOW6Ieb5DVl5nZof150NwrQPnOXPiQT2zo": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "iu+ppsmX/9Eeef/jJigID1AHQk9mZuSAgX2bryPcCsw="
+        "CodeSha256": "rur4RnKhZkcLezBR2f+ogQHvXXZhGfBZnHWNOfVh9AI="
+      }
+    },
+    "AuthLambdaVersionDk5nmcTIXzMMKrI3BzAzRharG4NXyu5FNBRJagiMh8": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "AuthLambdaFunction"
+        },
+        "CodeSha256": "rur4RnKhZkcLezBR2f+ogQHvXXZhGfBZnHWNOfVh9AI="
+      }
+    },
+    "PubsubLambdaLambdaVersionjIDpO20TlpK5Fmqzc6QgC2fIXHtGLHvPBvGkVY": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "PubsubLambdaLambdaFunction"
+        },
+        "CodeSha256": "rur4RnKhZkcLezBR2f+ogQHvXXZhGfBZnHWNOfVh9AI="
       }
     },
     "ApiGatewayRestApi": {
@@ -231,7 +326,7 @@
         }
       }
     },
-    "ApiGatewayMethodOptions": {
+    "ApiGatewayMethodProxyVarOptions": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
         "AuthorizationType": "NONE",
@@ -260,7 +355,7 @@
               "ResponseParameters": {
                 "method.response.header.Access-Control-Allow-Origin": "'*'",
                 "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,DELETE,GET,HEAD,PATCH,POST,PUT'"
               },
               "ResponseTemplates": {
                 "application/json": "#set($origin = $input.params(\"Origin\"))\n#if($origin == \"\") #set($origin = $input.params(\"origin\")) #end\n#if($origin.matches(\".+\")) #set($context.responseOverride.header.Access-Control-Allow-Origin = $origin) #end"
@@ -269,60 +364,11 @@
           ]
         },
         "ResourceId": {
-          "Fn::GetAtt": [
-            "ApiGatewayRestApi",
-            "RootResourceId"
-          ]
+          "Ref": "ApiGatewayResourceProxyVar"
         },
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
-      }
-    },
-    "ApiGatewayMethodGet": {
-      "Type": "AWS::ApiGateway::Method",
-      "Properties": {
-        "HttpMethod": "GET",
-        "RequestParameters": {},
-        "ResourceId": {
-          "Fn::GetAtt": [
-            "ApiGatewayRestApi",
-            "RootResourceId"
-          ]
-        },
-        "RestApiId": {
-          "Ref": "ApiGatewayRestApi"
-        },
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition"
-                },
-                ":apigateway:",
-                {
-                  "Ref": "AWS::Region"
-                },
-                ":lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "AppLambdaFunction",
-                    "Arn"
-                  ]
-                },
-                "/invocations"
-              ]
-            ]
-          }
-        },
-        "MethodResponses": []
       }
     },
     "ApiGatewayMethodProxyVarAny": {
@@ -337,7 +383,10 @@
           "Ref": "ApiGatewayRestApi"
         },
         "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
+        "AuthorizationType": "CUSTOM",
+        "AuthorizerId": {
+          "Ref": "AuthApiGatewayAuthorizer"
+        },
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -366,9 +415,45 @@
           }
         },
         "MethodResponses": []
+      },
+      "DependsOn": "AuthApiGatewayAuthorizer"
+    },
+    "AuthApiGatewayAuthorizer": {
+      "Type": "AWS::ApiGateway::Authorizer",
+      "Properties": {
+        "AuthorizerResultTtlInSeconds": 300,
+        "IdentitySource": "method.request.header.authorization",
+        "Name": "auth",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "AuthorizerUri": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":apigateway:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":lambda:path/2015-03-31/functions/",
+              {
+                "Fn::GetAtt": [
+                  "AuthLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "/invocations"
+            ]
+          ]
+        },
+        "Type": "REQUEST"
       }
     },
-    "ApiGatewayDeployment1614997032242": {
+    "ApiGatewayDeployment1616099668799": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -377,8 +462,7 @@
         "StageName": "dev"
       },
       "DependsOn": [
-        "ApiGatewayMethodOptions",
-        "ApiGatewayMethodGet",
+        "ApiGatewayMethodProxyVarOptions",
         "ApiGatewayMethodProxyVarAny"
       ]
     },
@@ -418,6 +502,88 @@
           ]
         }
       }
+    },
+    "AuthLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "AuthLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "PubsubLambdaEventSourceMappingSQSPubsubqueue": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "DependsOn": [
+        "IamRoleLambdaExecution"
+      ],
+      "Properties": {
+        "BatchSize": 10,
+        "EventSourceArn": "arn:aws:sqs:us-east-1:621940852840:pubsubqueue",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "PubsubLambdaLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Enabled": true
+      }
+    },
+    "GatewayResponse": {
+      "Type": "AWS::ApiGateway::GatewayResponse",
+      "Properties": {
+        "ResponseParameters": {
+          "gatewayresponse.header.Access-Control-Allow-Origin": "'*'",
+          "gatewayresponse.header.Access-Control-Allow-Headers": "'*'"
+        },
+        "ResponseType": "EXPIRED_TOKEN",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StatusCode": "401"
+      }
+    },
+    "AuthFailureGatewayResponse": {
+      "Type": "AWS::ApiGateway::GatewayResponse",
+      "Properties": {
+        "ResponseParameters": {
+          "gatewayresponse.header.Access-Control-Allow-Origin": "'*'",
+          "gatewayresponse.header.Access-Control-Allow-Headers": "'*'"
+        },
+        "ResponseType": "UNAUTHORIZED",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StatusCode": "401"
+      }
     }
   },
   "Outputs": {
@@ -429,7 +595,19 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionqdDraeVttMS0hglQPkhXXtxGWIOYKVUM4zTXEWj8epw"
+        "Ref": "AppLambdaVersionuxQmOGokbOW6Ieb5DVl5nZof150NwrQPnOXPiQT2zo"
+      }
+    },
+    "AuthLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "AuthLambdaVersionDk5nmcTIXzMMKrI3BzAzRharG4NXyu5FNBRJagiMh8"
+      }
+    },
+    "PubsubLambdaLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "PubsubLambdaLambdaVersionjIDpO20TlpK5Fmqzc6QgC2fIXHtGLHvPBvGkVY"
       }
     },
     "ServiceEndpoint": {

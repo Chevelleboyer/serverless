@@ -26,17 +26,55 @@ provider:
         - 's3:GetBucket'
         - 's3:GetBucketLocation'
         - 'dynamodb:Query'
+        - 'SQS:*'
       Resource: 
         - 'arn:aws:s3:::s3-bucket-cs493'
         - 'arn:aws:s3:::s3-bucket-cs493/*'
         - 'arn:aws:dynamodb:us-west-2:621940852840:table/music'
+        - 'arn:aws:sqs:us-east-1:621940852840:pubsubqueue'
         
 functions:
   app:
     handler: wsgi_handler.handler
     events:
-      - http: 
-          path: /
-          method: get
+      - http:
+          method: ANY
+          path: /{proxy+}
           cors: true
-      - http: "ANY {proxy+}"
+          authorizer:
+            name: auth
+            type: request
+            identitySource: 'method.request.header.authorization'
+
+  pubsubLambda:
+    handler: handler.pubsubLambda
+    events:
+      - sqs: 'arn:aws:sqs:us-east-1:621940852840:pubsubqueue'
+
+  auth:
+    handler: auth.handler
+
+resources:
+  Resources:
+    GatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: EXPIRED_TOKEN
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+    AuthFailureGatewayResponse:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+        StatusCode: '401'
+
+
