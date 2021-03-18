@@ -201,7 +201,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask/dev/1616099708354-2021-03-18T20:35:08.354Z/serverless-flask.zip"
+          "S3Key": "serverless/serverless-flask/dev/1616100738390-2021-03-18T20:52:18.390Z/serverless-flask.zip"
         },
         "Handler": "wsgi_handler.handler",
         "Runtime": "python3.6",
@@ -226,7 +226,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask/dev/1616099708354-2021-03-18T20:35:08.354Z/serverless-flask.zip"
+          "S3Key": "serverless/serverless-flask/dev/1616100738390-2021-03-18T20:52:18.390Z/serverless-flask.zip"
         },
         "Handler": "handler.pubsubLambda",
         "Runtime": "python3.6",
@@ -251,7 +251,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/serverless-flask/dev/1616099708354-2021-03-18T20:35:08.354Z/serverless-flask.zip"
+          "S3Key": "serverless/serverless-flask/dev/1616100738390-2021-03-18T20:52:18.390Z/serverless-flask.zip"
         },
         "Handler": "auth.handler",
         "Runtime": "python3.6",
@@ -269,34 +269,34 @@
         "AuthLogGroup"
       ]
     },
-    "AppLambdaVersionuxQmOGokbOW6Ieb5DVl5nZof150NwrQPnOXPiQT2zo": {
+    "AppLambdaVersiongy0etGUDki4I9WJdHBv72hXk6OuJ2P0AKoHimpsII": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "rur4RnKhZkcLezBR2f+ogQHvXXZhGfBZnHWNOfVh9AI="
+        "CodeSha256": "V8rcIst0SA4LOMUZM6AIC9hZbfG2VHRswraHtI3/cEQ="
       }
     },
-    "AuthLambdaVersionDk5nmcTIXzMMKrI3BzAzRharG4NXyu5FNBRJagiMh8": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "AuthLambdaFunction"
-        },
-        "CodeSha256": "rur4RnKhZkcLezBR2f+ogQHvXXZhGfBZnHWNOfVh9AI="
-      }
-    },
-    "PubsubLambdaLambdaVersionjIDpO20TlpK5Fmqzc6QgC2fIXHtGLHvPBvGkVY": {
+    "PubsubLambdaLambdaVersion6VGWjLFIh68zhzezyd8phNGXArjHxzcXaYFJW0M9M": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "PubsubLambdaLambdaFunction"
         },
-        "CodeSha256": "rur4RnKhZkcLezBR2f+ogQHvXXZhGfBZnHWNOfVh9AI="
+        "CodeSha256": "V8rcIst0SA4LOMUZM6AIC9hZbfG2VHRswraHtI3/cEQ="
+      }
+    },
+    "AuthLambdaVersion35bnSzJJJa1BUdT1y07N9lyH3wIergz9ImuezNhQ04": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "AuthLambdaFunction"
+        },
+        "CodeSha256": "V8rcIst0SA4LOMUZM6AIC9hZbfG2VHRswraHtI3/cEQ="
       }
     },
     "ApiGatewayRestApi": {
@@ -453,7 +453,7 @@
         "Type": "REQUEST"
       }
     },
-    "ApiGatewayDeployment1616099668799": {
+    "ApiGatewayDeployment1616100698056": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -595,19 +595,19 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionuxQmOGokbOW6Ieb5DVl5nZof150NwrQPnOXPiQT2zo"
-      }
-    },
-    "AuthLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "AuthLambdaVersionDk5nmcTIXzMMKrI3BzAzRharG4NXyu5FNBRJagiMh8"
+        "Ref": "AppLambdaVersiongy0etGUDki4I9WJdHBv72hXk6OuJ2P0AKoHimpsII"
       }
     },
     "PubsubLambdaLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "PubsubLambdaLambdaVersionjIDpO20TlpK5Fmqzc6QgC2fIXHtGLHvPBvGkVY"
+        "Ref": "PubsubLambdaLambdaVersion6VGWjLFIh68zhzezyd8phNGXArjHxzcXaYFJW0M9M"
+      }
+    },
+    "AuthLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "AuthLambdaVersion35bnSzJJJa1BUdT1y07N9lyH3wIergz9ImuezNhQ04"
       }
     },
     "ServiceEndpoint": {

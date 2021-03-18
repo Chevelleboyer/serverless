@@ -137,6 +137,7 @@ def play_song():
 		QueueUrl="https://sqs.us-east-1.amazonaws.com/621940852840/pubsubqueue",
 		MessageBody=json.dumps(request.json)
 	)
+	return ""
 
 
 
